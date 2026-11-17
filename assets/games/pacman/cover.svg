@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Pac-Man Flash clone cover art">
+  <defs>
+    <linearGradient id="maze" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1330"/><stop offset="1" stop-color="#050912"/>
+    </linearGradient>
+    <radialGradient id="pac" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#ffc400"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#maze)"/>
+  <!-- maze walls -->
+  <g stroke="#2b45c9" stroke-width="7" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M56 56h150v72h-70v56h-80z"/>
+    <path d="M584 56H434v72h70v56h80z"/>
+    <path d="M56 344h150v-72h-70v-56h-80z"/>
+    <path d="M584 344H434v-72h70v-56h80z"/>
+    <path d="M250 56h140v60"/>
+    <path d="M250 344h140v-60"/>
+    <path d="M320 200h44M276 200h-44"/>
+  </g>
+  <g stroke="#4159e6" stroke-width="4" fill="none" opacity="0.55">
+    <path d="M120 130v60h60M520 130v60h-60M120 270v-60h60M520 270v-60h-60"/>
+  </g>
+  <!-- dots -->
+  <g fill="#ffd9a8">
+    <circle cx="200" cy="200" r="4"/><circle cx="232" cy="200" r="4"/><circle cx="264" cy="200" r="4"/>
+    <circle cx="200" cy="160" r="4"/><circle cx="200" cy="240" r="4"/>
+    <circle cx="376" cy="200" r="4"/><circle cx="408" cy="200" r="4"/><circle cx="440" cy="200" r="4"/>
+    <circle cx="440" cy="160" r="4"/><circle cx="440" cy="240" r="4"/>
+    <circle cx="320" cy="120" r="4"/><circle cx="320" cy="280" r="4"/>
+  </g>
+  <g fill="#ffe066">
+    <circle cx="120" cy="228" r="10"/><circle cx="520" cy="172" r="10"/>
+  </g>
+  <!-- pacman -->
+  <g transform="translate(300 200)">
+    <path d="M0 0 62-30A70 70 0 1 0 62 30z" fill="url(#pac)"/>
+    <circle cx="-8" cy="-30" r="6" fill="#3a2a00"/>
+  </g>
+  <!-- ghosts -->
+  <g>
+    <g transform="translate(180 116)">
+      <path d="M-26 18v-18a26 26 0 0 1 52 0v18l-9-7-8 7-8-7-8 7-9-7z" fill="#ff5d6c"/>
+      <circle cx="-9" cy="-2" r="7" fill="#fff"/><circle cx="9" cy="-2" r="7" fill="#fff"/>
+      <circle cx="-7" cy="-1" r="3.4" fill="#132"/>
+      <circle cx="11" cy="-1" r="3.4" fill="#132"/>
+    </g>
+    <g transform="translate(474 252)">
+      <path d="M-26 18v-18a26 26 0 0 1 52 0v18l-9-7-8 7-8-7-8 7-9-7z" fill="#4ad2ff"/>
+      <circle cx="-9" cy="-2" r="7" fill="#fff"/><circle cx="9" cy="-2" r="7" fill="#fff"/>
+      <circle cx="-7" cy="-1" r="3.4" fill="#132"/>
+      <circle cx="11" cy="-1" r="3.4" fill="#132"/>
+    </g>
+    <g transform="translate(430 96)">
+      <path d="M-22 15v-15a22 22 0 0 1 44 0v15l-8-6-7 6-7-6-7 6-7-6z" fill="#ffb45c"/>
+      <circle cx="-8" cy="-2" r="6" fill="#fff"/><circle cx="8" cy="-2" r="6" fill="#fff"/>
+      <circle cx="-6" cy="-1" r="3" fill="#132"/><circle cx="10" cy="-1" r="3" fill="#132"/>
+    </g>
+  </g>
+  <text x="32" y="376" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffd166" opacity="0.65">PAC-MAN (FLASH)</text>
+</svg>

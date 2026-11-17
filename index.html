@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ruffle Arcade — play Flash games in your browser</title>
+  <meta name="description" content="A tiny, self-hostable Flash game arcade powered by Ruffle. Four games included, plus drop in your own .swf files." />
+  <meta name="theme-color" content="#0b0f16" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#/library">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" role="img"><path d="M6 26V6h12a7 7 0 0 1 1.6 13.8L26 26h-6.6l-5-5.6H12V26H6Zm6-11h6a2.5 2.5 0 0 0 0-5h-6v5Z"/></svg>
+      </span>
+      <span class="brand-text">
+        <strong>Ruffle Arcade</strong>
+        <small>Flash, back from the dead</small>
+      </span>
+    </a>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-btn-library" data-tab="library" aria-controls="panel-library" aria-selected="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+        Library
+        <span class="tab-count" id="library-count">0</span>
+      </button>
+      <button class="tab" role="tab" id="tab-btn-own" data-tab="own" aria-controls="panel-own" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/></svg>
+        Play your own
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" title="Toggle light / dark theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/ruffle-rs/ruffle" target="_blank" rel="noreferrer noopener" title="Ruffle on GitHub">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.6c.4.07.55-.17.55-.38v-1.34c-2.23.49-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.82 1.23.82.71 1.23 1.87.87 2.33.66.07-.52.28-.88.51-1.08-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.47v2.18c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span>Ruffle</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= LIBRARY ================= -->
+    <section class="panel" id="panel-library" role="tabpanel" aria-labelledby="tab-btn-library">
+      <div class="hero">
+        <h1>Four Flash classics, zero plugins.</h1>
+        <p>
+          Everything here runs on <strong>Ruffle</strong>, a WebAssembly Flash Player. Pick a game and it plays
+          right in this page — no downloads, no installers.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+          <input type="search" id="search" placeholder="Search games…" autocomplete="off" aria-label="Search games" />
+        </label>
+        <div class="chips" id="tag-filters" role="group" aria-label="Filter by tag"></div>
+      </div>
+
+      <div class="grid" id="game-grid" aria-live="polite"></div>
+
+      <p class="empty" id="grid-empty" hidden>No games match that search.</p>
+
+      <aside class="note">
+        <details>
+          <summary>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v.01M12 12v5M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/></svg>
+            Adding or removing a game takes 30 seconds
+          </summary>
+          <div class="note-body">
+            <ol>
+              <li>Drop your <code>.swf</code> into <code>assets/games/&lt;id&gt;/game.swf</code>.</li>
+              <li>Add one block to <code>games.json</code> (or run <code>node scripts/add-game.mjs mygame.swf "My Game"</code>).</li>
+            </ol>
+            <p>To remove a game, delete its block from <code>games.json</code> (and its folder). Nothing else to touch.</p>
+          </div>
+        </details>
+      </aside>
+    </section>
+
+    <!-- ================= YOUR OWN ================= -->
+    <section class="panel" id="panel-own" role="tabpanel" aria-labelledby="tab-btn-own" hidden>
+      <div class="hero">
+        <h1>Bring your own <code>.swf</code>.</h1>
+        <p>Drop a Flash file here and it plays instantly. Your file never leaves this tab — it is read locally by the browser.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose or drop a SWF file">
+        <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/></svg>
+        <strong>Drop a .swf file, or click to browse</strong>
+        <span>Works with games, animations, menus… anything Flash 1–32</span>
+        <input type="file" id="file-input" accept=".swf,application/x-shockwave-flash" hidden />
+      </div>
+
+      <div class="or">or</div>
+
+      <form class="url-form" id="url-form" novalidate>
+        <input type="url" id="url-input" placeholder="https://example.com/game.swf" aria-label="SWF URL" />
+        <button class="btn btn-primary" type="submit">Load URL</button>
+      </form>
+      <p class="hint">
+        Remote files must allow cross-origin requests (CORS). A file in this repo, or a GitHub Pages URL, always works.
+      </p>
+
+      <div class="recent" id="recent-wrap" hidden>
+        <h2 class="section-title">This session</h2>
+        <ul class="recent-list" id="recent-list"></ul>
+      </div>
+
+      <p class="error" id="own-error" hidden></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Powered by <a href="https://ruffle.rs" target="_blank" rel="noreferrer noopener">Ruffle</a> (MIT / Apache-2.0) ·
+      Bundled games are MIT-licensed by their authors — see <a href="#/library">each game’s page</a> for credit.
+    </p>
+    <p class="muted">A static site: HTML, CSS and JavaScript. No build step, no server, GitHub Pages ready.</p>
+  </footer>
+
+  <!-- ================= PLAYER OVERLAY ================= -->
+  <div class="stage" id="stage" hidden>
+    <div class="stage-inner" role="dialog" aria-modal="true" aria-labelledby="stage-title">
+      <header class="stage-bar">
+        <div class="stage-title-wrap">
+          <h2 id="stage-title">Game</h2>
+          <p id="stage-sub"></p>
+        </div>
+        <div class="stage-actions">
+          <button class="btn btn-ghost" id="btn-restart" type="button" title="Restart (R)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+            <span>Restart</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-pause" type="button" title="Pause / resume (Space)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+            <span>Pause</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-mute" type="button" title="Mute / unmute (M)">
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="icon-sound-on"><path d="M11 5 6 9H3v6h3l5 4V5Zm5 4a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="icon-sound-off"><path d="M11 5 6 9H3v6h3l5 4V5Zm5.5 3.5 5 5m0-5-5 5"/></svg>
+            <span>Mute</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-fullscreen" type="button" title="Fullscreen (F)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            <span>Fullscreen</span>
+          </button>
+          <button class="btn btn-close" id="btn-close" type="button" title="Close (Esc)" aria-label="Close player">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="stage-body" id="stage-body">
+        <div class="stage-loading" id="stage-loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Booting Ruffle…</p>
+        </div>
+        <div class="player-mount" id="player-mount"></div>
+      </div>
+
+      <footer class="stage-foot" id="stage-foot"></footer>
+    </div>
+  </div>
+
+  <script src="js/catalog.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

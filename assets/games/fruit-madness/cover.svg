@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Fruit Madness cover art">
+  <defs>
+    <radialGradient id="space" cx="0.5" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#2a2350"/><stop offset="1" stop-color="#0a0716"/>
+    </radialGradient>
+    <linearGradient id="ufo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfd8e8"/><stop offset="1" stop-color="#7c8aa3"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#bfefff" stop-opacity="0.85"/><stop offset="1" stop-color="#4ea9d6" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#space)"/>
+  <g fill="#ffffff">
+    <circle cx="60" cy="52" r="2.4" opacity="0.85"/><circle cx="180" cy="30" r="1.8" opacity="0.6"/>
+    <circle cx="300" cy="58" r="2" opacity="0.75"/><circle cx="452" cy="34" r="2.4" opacity="0.8"/>
+    <circle cx="560" cy="70" r="1.8" opacity="0.6"/><circle cx="120" cy="150" r="1.6" opacity="0.5"/>
+    <circle cx="520" cy="160" r="1.6" opacity="0.5"/><circle cx="380" cy="120" r="1.4" opacity="0.5"/>
+  </g>
+  <!-- incoming fruit -->
+  <g>
+    <g transform="translate(96 118) rotate(-18)">
+      <circle r="30" fill="#e2402f"/><path d="M0-30c4-10 12-14 20-14-4 9-10 13-20 14z" fill="#3fa34d"/><path d="M0-30v-14" stroke="#6b4a2b" stroke-width="4"/>
+      <ellipse cx="-10" cy="-12" rx="7" ry="5" fill="#ffffff" opacity="0.35"/>
+    </g>
+    <g transform="translate(540 130) rotate(14)">
+      <circle r="26" fill="#ffb300"/><circle cx="8" cy="-8" r="14" fill="#ffcf4d" opacity="0.7"/>
+      <path d="M0-26c2-8 8-11 16-11-4 8-8 11-16 11z" fill="#3fa34d"/>
+    </g>
+    <g transform="translate(150 300) rotate(8)">
+      <circle r="22" fill="#7b3fbf"/><circle cx="-8" cy="-10" r="10" fill="#a86bdd" opacity="0.6"/>
+      <path d="M0-22c2-7 7-9 13-9-3 7-6 9-13 9z" fill="#3fa34d"/>
+    </g>
+    <g transform="translate(500 300) rotate(-10)">
+      <path d="M-28 0a28 28 0 0 1 56 0z" fill="#2f9e57"/>
+      <path d="M-28 0a28 28 0 0 0 56 0z" fill="#e63946"/>
+      <circle cx="-9" cy="-8" r="2.4" fill="#0c2b16"/><circle cx="4" cy="-13" r="2.4" fill="#0c2b16"/><circle cx="14" cy="-4" r="2.4" fill="#0c2b16"/>
+    </g>
+  </g>
+  <!-- ufo -->
+  <g transform="translate(320 250)">
+    <ellipse cx="0" cy="42" rx="120" ry="16" fill="#9fe6ff" opacity="0.14"/>
+    <path d="M-120 8c0-18 54-30 120-30s120 12 120 30-54 28-120 28S-120 26-120 8z" fill="url(#ufo)"/>
+    <path d="M-120 8c0 18 54 26 120 26s120-8 120-26" fill="none" stroke="#5d6b83" stroke-width="4"/>
+    <g fill="#ffd54a">
+      <circle cx="-84" cy="12" r="7"/><circle cx="-30" cy="24" r="7"/><circle cx="30" cy="24" r="7"/><circle cx="84" cy="12" r="7"/>
+    </g>
+    <path d="M-56 -8a56 56 0 0 1 112 0z" fill="url(#bubble)" stroke="#a9e4ff" stroke-width="3"/>
+    <!-- panda -->
+    <g transform="translate(0 -26)">
+      <circle r="26" fill="#f7f9fc"/>
+      <circle cx="-19" cy="-16" r="10" fill="#1b1f27"/><circle cx="19" cy="-16" r="10" fill="#1b1f27"/>
+      <ellipse cx="-9" cy="-4" rx="7" ry="9" fill="#1b1f27"/><ellipse cx="9" cy="-4" rx="7" ry="9" fill="#1b1f27"/>
+      <circle cx="-8" cy="-4" r="3" fill="#fff"/><circle cx="10" cy="-4" r="3" fill="#fff"/>
+      <ellipse cx="0" cy="9" rx="6" ry="4" fill="#1b1f27"/>
+      <path d="M-7 17c4 4 10 4 14 0" stroke="#1b1f27" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- muffins -->
+  <g fill="#f2c14e">
+    <circle cx="380" cy="336" r="7"/><circle cx="424" cy="322" r="5"/><circle cx="230" cy="336" r="5"/>
+  </g>
+  <text x="32" y="376" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffd166" opacity="0.7">FRUIT MADNESS</text>
+</svg>

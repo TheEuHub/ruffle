@@ -1,0 +1,9 @@
+# dependencies (there are none at runtime — the site is plain HTML/CSS/JS)
+node_modules/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

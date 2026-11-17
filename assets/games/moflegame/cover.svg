@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Mofle Game cover art">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#dff3ff"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5fd07a"/><stop offset="1" stop-color="#2f9e57"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#sky2)"/>
+  <circle cx="524" cy="76" r="38" fill="#fff3a8"/>
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="120" cy="82" rx="42" ry="18"/><ellipse cx="160" cy="72" rx="30" ry="15"/>
+    <ellipse cx="90" cy="74" rx="24" ry="13"/><ellipse cx="356" cy="124" rx="34" ry="14"/>
+  </g>
+  <g fill="#7ec8f0" opacity="0.85">
+    <path d="M0 300l90-92 86 92z"/><path d="M120 300l78-72 74 72z"/>
+  </g>
+  <rect y="296" width="640" height="104" fill="url(#grass)"/>
+  <g fill="#7a5230">
+    <rect y="296" width="640" height="14"/>
+  </g>
+  <g fill="#8a6039">
+    <rect x="210" y="252" width="86" height="18" rx="4"/>
+    <rect x="392" y="222" width="72" height="16" rx="4"/>
+  </g>
+  <!-- coins -->
+  <g fill="#ffd54a" stroke="#e0a92c" stroke-width="2">
+    <circle cx="252" cy="230" r="10"/><circle cx="440" cy="200" r="10"/>
+  </g>
+  <!-- character -->
+  <g transform="translate(150 240)">
+    <ellipse cx="0" cy="58" rx="34" ry="7" fill="#0d3f22" opacity="0.2"/>
+    <rect x="-16" y="6" width="32" height="34" rx="10" fill="#ff7a45"/>
+    <rect x="-11" y="36" width="9" height="18" rx="4" fill="#2b3a4a"/>
+    <rect x="3" y="36" width="9" height="18" rx="4" fill="#2b3a4a"/>
+    <circle cx="0" cy="-8" r="19" fill="#ffd9b8"/>
+    <path d="M-19-10a19 19 0 0 1 38 0z" fill="#2b3a4a"/>
+    <circle cx="-6" cy="-6" r="2.6" fill="#22303d"/><circle cx="6" cy="-6" r="2.6" fill="#22303d"/>
+    <path d="M-4 2c3 3 5 3 8 0" stroke="#22303d" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="32" y="372" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#0b4a2b" opacity="0.45">MOFLE GAME</text>
+</svg>

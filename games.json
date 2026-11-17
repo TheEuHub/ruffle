@@ -1,0 +1,76 @@
+{
+  "games": [
+    {
+      "id": "pacman",
+      "title": "Pac-Man",
+      "file": "game.swf",
+      "author": "Roy Massaad",
+      "players": "1 player",
+      "description": "The arcade classic rebuilt in Flash: clear the maze, dodge four ghosts and chase a high score.",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "High Score"
+      ],
+      "controls": "Arrow keys (or WASD) to move. Eat every dot to clear the maze; the big dots let you hunt the ghosts.",
+      "cover": "cover.svg",
+      "width": 550,
+      "height": 400,
+      "license": "MIT",
+      "source": "https://github.com/roymasad/pacman-flash-game"
+    },
+    {
+      "id": "fruit-madness",
+      "title": "Fruit Madness",
+      "file": "game.swf",
+      "author": "Vladimir Belyaev",
+      "players": "1 player",
+      "description": "Pilot a saucer full of panda, dodge waves of angry fruit and scoop up muffins before the fuel runs out.",
+      "tags": [
+        "Arcade",
+        "Action",
+        "Endless"
+      ],
+      "controls": "Arrow keys or WASD to steer the saucer. Grab muffins for fuel, avoid the flying fruit.",
+      "cover": "cover.svg",
+      "width": 600,
+      "height": 450,
+      "license": "MIT",
+      "source": "https://github.com/leinstay/fruitmadness"
+    },
+    {
+      "id": "pixel-shooter",
+      "title": "Pixel Shooter",
+      "file": "game.swf",
+      "author": "Ian Ramzy",
+      "players": "1 player",
+      "description": "Navigate enemy caverns while battling non-stop waves of enemies in this fast pixel-art shooter.",
+      "tags": [
+        "Shooter",
+        "Action"
+      ],
+      "cover": "cover.svg",
+      "width": 1000,
+      "height": 650,
+      "license": "MIT",
+      "source": "https://github.com/ianramzy/pixel-shooter"
+    },
+    {
+      "id": "moflegame",
+      "title": "Mofle Game",
+      "file": "game.swf",
+      "author": "Sindre Sorhus",
+      "players": "1 player",
+      "description": "A simple little platform Flash game, written in high school and still playable today.",
+      "tags": [
+        "Platformer",
+        "Retro"
+      ],
+      "cover": "cover.svg",
+      "width": 1000,
+      "height": 600,
+      "license": "MIT",
+      "source": "https://github.com/sindresorhus/moflegame"
+    }
+  ]
+}

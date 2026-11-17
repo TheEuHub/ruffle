@@ -1,0 +1,17 @@
+{
+  "name": "ruffle-arcade",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A tiny static Flash game arcade powered by Ruffle — two tabs, four games included, GitHub Pages ready.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "serve": "node scripts/serve.mjs",
+    "add-game": "node scripts/add-game.mjs",
+    "remove-game": "node scripts/remove-game.mjs",
+    "check-games": "node scripts/check-games.mjs"
+  },
+  "keywords": ["flash", "ruffle", "swf", "games", "github-pages"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}

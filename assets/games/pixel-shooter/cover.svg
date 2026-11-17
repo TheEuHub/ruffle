@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Pixel Shooter cover art">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12082b"/><stop offset="0.55" stop-color="#3a1152"/><stop offset="1" stop-color="#6d1f4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#sky)"/>
+  <g fill="#ffffff" opacity="0.75">
+    <rect x="42" y="36" width="4" height="4"/><rect x="120" y="70" width="3" height="3"/>
+    <rect x="300" y="30" width="4" height="4"/><rect x="500" y="54" width="3" height="3"/>
+    <rect x="580" y="96" width="4" height="4"/><rect x="210" y="110" width="3" height="3"/>
+  </g>
+  <!-- cavern silhouette -->
+  <path d="M0 400V250l60-40 44 52 40-90 46 70 30-40 52 76 40-110 44 88 36-46 50 84 44-120 38 96 52-62 44 74V400z" fill="#160a24" opacity="0.9"/>
+  <path d="M0 400v-58l48-24 40 34 44-52 40 40 50-64 46 58 42-38 48 52 46-70 44 62 40-30 52 58 42-44 40 46v36z" fill="#0a0512"/>
+  <!-- ship -->
+  <g transform="translate(300 212)">
+    <rect x="-6" y="-46" width="12" height="22" fill="#5ce1e6"/>
+    <path d="M0-26l34 26-34 26-34-26z" fill="#8ef7ff"/>
+    <rect x="-46" y="-2" width="20" height="6" fill="#ffd166"/>
+    <rect x="26" y="-2" width="20" height="6" fill="#ffd166"/>
+    <rect x="-4" y="-8" width="8" height="16" fill="#ffffff"/>
+  </g>
+  <!-- bullets -->
+  <g fill="#ffe066">
+    <rect x="120" y="150" width="5" height="16"/><rect x="230" y="118" width="5" height="16"/>
+    <rect x="470" y="146" width="5" height="16"/><rect x="392" y="106" width="5" height="16"/>
+    <rect x="552" y="188" width="5" height="16"/>
+  </g>
+  <!-- enemies -->
+  <g fill="#ff5d73">
+    <rect x="86" y="196" width="26" height="18"/><rect x="94" y="188" width="10" height="8"/>
+    <rect x="500" y="210" width="26" height="18"/><rect x="508" y="202" width="10" height="8"/>
+    <rect x="180" y="250" width="22" height="16"/>
+  </g>
+  <g fill="#ffffff" opacity="0.9">
+    <rect x="94" y="202" width="4" height="4"/><rect x="508" y="216" width="4" height="4"/>
+  </g>
+  <text x="32" y="372" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#ffd166" opacity="0.7">PIXEL SHOOTER</text>
+</svg>
