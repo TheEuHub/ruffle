@@ -1,0 +1,4 @@
+Ruffle self-hosted web build 0.7.1
+Source: https://www.npmjs.com/package/@ruffle-rs/ruffle
+Official releases: https://github.com/ruffle-rs/ruffle/releases
+The JavaScript and WebAssembly runtime files are distributed under the licenses in this folder.
