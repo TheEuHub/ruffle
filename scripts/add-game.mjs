@@ -174,7 +174,15 @@ async function main() {
   console.log(`${existing >= 0 ? "Updated" : "Added"} “${title}”  →  assets/games/${id}/game.swf`);
   console.log(`   stage size read from header: ${entry.width} × ${entry.height}`);
   console.log(`   games.json now lists ${games.length} game${games.length === 1 ? "" : "s"}`);
-  console.log(`\nCommit assets/games/${id}/ and games.json, push, and it is live on GitHub Pages.`);
+  // Keep the single-file offline copy in sync automatically.
+  try {
+    const { execFileSync } = await import("node:child_process");
+    execFileSync(process.execPath, [join(root, "scripts", "build-offline.mjs")], { stdio: "inherit" });
+  } catch {
+    console.warn("warning: could not rebuild offline.html — run `npm run build-offline` before committing.");
+  }
+
+  console.log(`\nCommit assets/games/${id}/, games.json and offline.html, push, and it is live.`);
 }
 
 // Only run when invoked directly, so other scripts can import readSwfHeader.

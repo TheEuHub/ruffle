@@ -32,6 +32,14 @@ const output = Array.isArray(catalog) ? next : { ...catalog, games: next };
 await writeFile(catalogPath, JSON.stringify(output, null, 2) + "\n");
 console.log(`Removed “${id}” from games.json (${next.length} left).`);
 
+// Keep the single-file offline copy in sync automatically.
+try {
+  const { execFileSync } = await import("node:child_process");
+  execFileSync(process.execPath, [join(root, "scripts", "build-offline.mjs")], { stdio: "inherit" });
+} catch {
+  console.warn("warning: could not rebuild offline.html — run `npm run build-offline` before committing.");
+}
+
 if (deleteFiles) {
   await rm(join(root, "assets", "games", id), { recursive: true, force: true });
   console.log(`Deleted assets/games/${id}/`);

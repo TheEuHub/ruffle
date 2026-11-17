@@ -38,13 +38,32 @@
   /**
    * Load the catalog.
    * `basePath` lets the site live in a subfolder (e.g. /ruffle/) on GitHub Pages.
+   *
+   * In the single-file offline build (offline.html) there is no games.json to fetch:
+   * the list is compiled into the page and covers are embedded as data URLs, so an
+   * entry can be played by double-clicking the file with no server at all.
    */
   async function load(basePath) {
-    const response = await fetch(`${basePath || ""}games.json`, { cache: "no-cache" });
-    if (!response.ok) throw new Error(`Could not load games.json (HTTP ${response.status})`);
-    const data = await response.json();
+    const embedded = window.__OFFLINE_CATALOG__;
+    let data;
+    if (embedded) {
+      data = embedded;
+    } else {
+      const response = await fetch(`${basePath || ""}games.json`, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`Could not load games.json (HTTP ${response.status})`);
+      data = await response.json();
+    }
     const list = Array.isArray(data) ? data : data.games || [];
-    return list.map((entry, i) => normalise(entry, i, basePath));
+    const covers = window.__OFFLINE_COVERS__ || {};
+    return list.map((entry, i) => {
+      const game = normalise(entry, i, basePath);
+      if (covers[game.id]) game.coverPath = covers[game.id];
+      // Offline builds read the SWF out of the page instead of the network.
+      if (window.__OFFLINE_ASSETS__ && window.__OFFLINE_ASSETS__.has(`game:${game.id}`)) {
+        game.embedded = true;
+      }
+      return game;
+    });
   }
 
   window.Catalog = { load, swfPathFor, DEFAULTS };

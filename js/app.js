@@ -52,6 +52,8 @@
     recentWrap: $("#recent-wrap"),
     recentList: $("#recent-list"),
     themeToggle: $("#theme-toggle"),
+    offlineNote: $("#offline-note"),
+    downloadLink: $(".download-link"),
   };
 
   /* ------------------------------------------------------------------ *
@@ -233,6 +235,12 @@
     el.stage.hidden = false;
     document.body.classList.add("stage-open");
     el.stageLoading.hidden = false;
+    const loadingText = el.stageLoading.querySelector("p");
+    if (loadingText) {
+      loadingText.textContent = window.__ARCADE_OFFLINE__
+        ? "Starting the offline player…"
+        : "Booting Ruffle…";
+    }
     el.mount.innerHTML = "";
     setPauseLabel(false);
 
@@ -265,7 +273,12 @@
       return;
     }
     closeStage({ fromRoute: true });
-    mountPlayer(game, { url: game.swfPath });
+    // Offline build: the .swf is embedded in this page — hand Ruffle the bytes.
+    if (game.embedded && window.__OFFLINE_ASSETS__) {
+      mountPlayer(game, { data: window.__OFFLINE_ASSETS__.bytesOf(`game:${game.id}`), fileName: game.file });
+    } else {
+      mountPlayer(game, { url: game.swfPath });
+    }
   }
 
   function openOwnFile({ data, fileName, url }) {
@@ -488,6 +501,23 @@
    * Boot
    * ------------------------------------------------------------------ */
   async function boot() {
+    if (window.__OFFLINE_TRUNCATED__) {
+      document.body.insertAdjacentHTML(
+        "afterbegin",
+        '<p class="error" style="margin:16px;padding:14px;border-radius:12px">' +
+          "This offline file looks incomplete — it was probably still being saved or copied. " +
+          "Copy it again, or use the hosted version instead.</p>"
+      );
+      return;
+    }
+
+    // Single-file build: say so, and point people at the download on the hosted site.
+    if (window.__ARCADE_OFFLINE__ && el.offlineNote) el.offlineNote.hidden = false;
+    if (window.__ARCADE_OFFLINE__ && el.downloadLink) {
+      el.downloadLink.hidden = true;        // you already have the file
+      el.downloadLink.style.display = "none";
+    }
+
     wireTheme();
     wireStage();
     wireOwnTab();

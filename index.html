@@ -36,6 +36,14 @@
     </nav>
 
     <div class="header-actions">
+      <span class="offline-pill" id="offline-note" hidden title="This is the single-file build: the player and every game are inside this HTML file.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
+        Offline copy
+      </span>
+      <a class="gh-link download-link" href="offline.html" download="ruffle-arcade-offline.html" title="Download the single-file offline copy">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
+        <span>Offline</span>
+      </a>
       <button class="icon-btn" id="theme-toggle" type="button" title="Toggle light / dark theme" aria-label="Toggle theme">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
       </button>
@@ -81,6 +89,8 @@
               <li>Add one block to <code>games.json</code> (or run <code>node scripts/add-game.mjs mygame.swf "My Game"</code>).</li>
             </ol>
             <p>To remove a game, delete its block from <code>games.json</code> (and its folder). Nothing else to touch.</p>
+            <p>Then run <code>npm run build-offline</code> to refresh the single-file copy — or just grab it with the
+              <strong>Offline</strong> button above; double-clicking it works with no server and no internet.</p>
           </div>
         </details>
       </aside>
@@ -107,7 +117,8 @@
         <button class="btn btn-primary" type="submit">Load URL</button>
       </form>
       <p class="hint">
-        Remote files must allow cross-origin requests (CORS). A file in this repo, or a GitHub Pages URL, always works.
+        Remote files must allow cross-origin requests (CORS) and need an internet connection. Everything else —
+        the player and the four library games — is stored inside this page when you use the offline copy.
       </p>
 
       <div class="recent" id="recent-wrap" hidden>
