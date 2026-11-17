@@ -1,4 +1,4 @@
-# Rewind Arcade
+# Ruffle Player
 
 A static, browser-only Flash game library powered by [Ruffle](https://github.com/ruffle-rs/ruffle). It uses plain HTML, CSS, and JavaScript—no build step, framework, CDN, or backend. Locally selected SWF files are read with `FileReader`; this site does not upload them.
 
@@ -16,6 +16,7 @@ The four entries in `games.json` are placeholders. No game files are included; a
 ├── games/
 │   └── .gitkeep
 └── ruffle/
+    ├── logo.svg
     ├── ruffle.js
     ├── core.ruffle.16d61072ac7fdc4d5013.js
     ├── core.ruffle.994eeef0a471a88cd0e3.js
@@ -26,7 +27,7 @@ The four entries in `games.json` are placeholders. No game files are included; a
     └── VERSION.txt
 ```
 
-Keep all Ruffle JavaScript and WebAssembly files together in `ruffle/`; the runtime loads those files locally. The included self-hosted build is Ruffle 0.7.1. Its license files are included alongside it.
+Keep all Ruffle JavaScript and WebAssembly files together in `ruffle/`; the runtime loads those files locally. The included self-hosted build is Ruffle 0.7.1. Its license files are included alongside it. The page uses the official [Ruffle demo logo](https://github.com/ruffle-rs/ruffle/blob/master/web/packages/demo/public/logo.svg) and the player's blue-and-orange palette.
 
 ## Add or remove a library game
 

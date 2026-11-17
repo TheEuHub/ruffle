@@ -6,8 +6,7 @@ const libraryPanel = document.getElementById("library-panel");
 const ownPanel = document.getElementById("own-panel");
 const tabList = document.querySelector('[role="tablist"]');
 const gameGrid = document.getElementById("game-grid");
-const heroGameCount = document.getElementById("hero-game-count");
-const collectionSummary = document.getElementById("collection-summary");
+const collectionCount = document.getElementById("collection-count");
 const libraryMessage = document.getElementById("library-message");
 const libraryMessageTitle = document.getElementById("library-message-title");
 const libraryMessageText = document.getElementById("library-message-text");
@@ -49,8 +48,7 @@ function clearLibraryMessage() {
 
 function setGameCount(count) {
   const entriesLabel = count === 1 ? "entry" : "entries";
-  heroGameCount.textContent = String(count);
-  collectionSummary.textContent = entriesLabel;
+  collectionCount.textContent = `${count} ${entriesLabel}`;
 }
 
 function isSafeRelativePath(value, extension) {
