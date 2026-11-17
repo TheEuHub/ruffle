@@ -62,10 +62,12 @@ async function build() {
   const html = await readText("index.html");
   const css = await readText("css/style.css");
   const catalogSource = await readText("games.json");
+  await readText("js/boot.js"); // must exist in the repo, even though the offline build inlines
   const js = {
     catalog: await readText("js/catalog.js"),
     player: await readText("js/player.js"),
     offline: await readText("js/offline-boot.js"),
+    boot: await readText("js/boot.js"),
     app: await readText("js/app.js"),
   };
 
@@ -146,33 +148,61 @@ async function build() {
   }
 
   // 2. the site scripts become inline code (catalog + covers, then the app)
+  const inline = (body, id) => `<script data-inline="${id}">${safeForScriptTag(body)}</script>`;
   const scriptTags = [
     `<script>${safeForScriptTag(catalogInline)}</script>`,
     `<script>${safeForScriptTag(coversTable)}</script>`,
-    `<script>${safeForScriptTag(js.catalog)}</script>`,
-    `<script>${safeForScriptTag(js.player)}</script>`,
-    `<script>${safeForScriptTag(js.offline)}</script>`,
-    `<script>${safeForScriptTag(js.app)}</script>`,
+    inline(js.catalog, "catalog.js"),
+    inline(js.player, "player.js"),
+    inline(js.offline, "offline-boot.js"),
+    inline(js.app, "app.js"),
+    inline(js.boot, "boot.js"),
   ].join("\n  ");
 
+  // index.html loads the app through <script src="js/boot.js">. In the single file
+  // everything it would have fetched is inline, and boot.js itself runs last.
   out = replaceOnce(
     out,
-    /<script src="js\/catalog\.js"><\/script>\s*<script src="js\/player\.js"><\/script>\s*<script src="js\/app\.js"><\/script>/,
+    /<script src="js\/boot\.js"[^>]*><\/script>/,
     scriptTags
   );
 
   // 3. the offline payload goes in <head>, after the metadata: one <script> tag per
   //    asset, before the app scripts run.
+  //
+  //    A copy cut short mid-download is the most likely failure of a 43 MB file, so a
+  //    tiny inline guard sits *before* the payload: if the document never ends, the page
+  //    still explains itself instead of showing a blank screen.
+  const truncationGuard =
+    "<script>window.__ARCADE_TRUNCATION_CHECK__=setTimeout(function(){" +
+    "if(window.__ARCADE_DOC_COMPLETE__)return;" +
+    "var t=document.getElementById('splash-title');if(!t)return;" +
+    "t.textContent='This offline file is incomplete';" +
+    "document.getElementById('splash-message').textContent=" +
+    "'It was cut short while saving or copying — a full copy is about 43 MB. Copy it again, then reopen.';" +
+    "var b=document.getElementById('splash-bar');if(b)b.hidden=true;" +
+    "document.getElementById('splash-actions').hidden=false;" +
+    "},1500);</script>";
+
   out = inject(
     out,
     "  <!-- ================= LIBRARY ================= -->",
     "  " +
+      truncationGuard +
+      "\n  " +
       embedded.join("\n  ") +
       "\n\n  <!-- ================= LIBRARY ================= -->"
   );
 
-  // 4. mark the build
+  // 4. mark the build, and mark the document as complete at its very end
   out = inject(out, "<title>", "<title>Offline — ");
+  if (!/id="splash"/.test(out)) throw new Error("build-offline: splash markup missing from index.html");
+  if (!out.includes("</body>")) throw new Error("build-offline: no </body> to append to");
+  out = inject(
+    out,
+    "</body>",
+    "<script>window.__ARCADE_DOC_COMPLETE__=true;clearTimeout(window.__ARCADE_TRUNCATION_CHECK__);</script>\n</body>"
+  );
   out = inject(
     out,
     '<meta name="theme-color" content="#0b0f16" />',

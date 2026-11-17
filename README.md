@@ -66,6 +66,25 @@ Nothing is fetched from a CDN, so the file works on a plane, on `file://`, or fr
 
 > Editing `offline.html` by hand is not supported — it is a build artifact. Edit the sources and rebuild.
 
+### What happens in bad situations
+
+`index.html` is designed to survive almost anything. It shows a splash while starting, and that
+splash becomes a recovery panel instead of a blank page when something is wrong:
+
+| Situation | What happens |
+| --- | --- |
+| Normal hosting | Boots normally; the splash disappears as soon as the library renders. |
+| **Double-clicked `index.html`** | Explains that `file://` cannot read neighbouring files, and points straight at `offline.html`. |
+| `js/` missing or blocked, `offline.html` present | **Self-heals:** pulls the app, Ruffle and the games out of `offline.html` and runs them from memory — the library and all four games work. |
+| `assets/ruffle/` missing | Ruffle falls back to its official CDN (unpkg, then jsDelivr) before giving up. |
+| Site offline *and* files missing | Reports which files were unreachable, with an **Open the offline copy** button. |
+| `games.json` missing | Says the game list could not be read, with the same escape hatch. |
+| `offline.html` half-copied | Detects that the document never finished and says the file is incomplete (a full copy is ~43 MB). |
+| `localStorage` blocked (private mode) | Boots anyway; the theme just is not remembered. |
+| WebAssembly unavailable | The player reports a readable error; the library and "play your own" still work. |
+
+Nothing is left blank: every path ends in either a working arcade or a one-click route to one.
+
 ### Offline caveats
 
 - **"Play your own"** still works: dropping a `.swf` reads it locally, exactly as on the hosted site.
@@ -181,6 +200,7 @@ entry never gets deployed.
 | --- | --- |
 | `index.html` | The two tabs, the library grid, and the player overlay. |
 | `games.json` | **The whole game list.** The only file you edit to add/remove games. |
+| `js/boot.js` | Startup + fallbacks: loads the app, self-heals from `offline.html`, shows recovery panels. |
 | `js/catalog.js` | Fetches `games.json` and normalises entries (defaults, paths, aspect ratio). |
 | `js/app.js` | Tabs, routing (`#/library`, `#/own`, `#/play/<id>`), search, filters, player controls. |
 | `js/player.js` | The only file that talks to Ruffle: loads it, mounts a SWF, pause/restart/mute/fullscreen. |
@@ -237,5 +257,6 @@ Swap them for your own favourites at any time — see *Adding a game* above.
 | A game asks for more `.swf`/asset files | SWFs that load extra files at runtime expect them next to the movie — put them in the same folder as `game.swf`. |
 | Uploaded file shows nothing | Check that it is a real, uncompressed-too-large `.swf`. Ruffle supports Flash 1–32. |
 | Audio is muted | Browsers block sound until you click. Click the game, or press our **Mute/Unmute** button. |
-| Double-clicking `index.html` shows an empty page | That is expected — `index.html` needs a server. Double-click **`offline.html`** instead. |
+| Double-clicking `index.html` shows a message | Deliberate: `file://` cannot read neighbouring files, so it links you to **`offline.html`**, which is self-contained. |
+| The page says it "could not load its files" | Some files were unreachable. If `offline.html` sits next to it the page recovers automatically; otherwise re-deploy or run `npm start`. |
 | `offline.html` shows "this file looks incomplete" | The copy was cut short while saving/copying. Copy it again, or rebuild with `npm run build-offline`. |

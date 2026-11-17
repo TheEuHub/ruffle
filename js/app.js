@@ -201,6 +201,7 @@
     state.activeGame = null;
     state.loading = false;
     state.loadToken++;
+    window.__ARCADE_STAGE_OPEN__ = false;
     el.stage.hidden = true;
     document.body.classList.remove("stage-open");
     el.mount.innerHTML = "";
@@ -220,6 +221,7 @@
     const token = ++state.loadToken;
     state.activeGame = game;
     state.loading = true;
+    window.__ARCADE_STAGE_OPEN__ = true; // tells the splash watchdog to stay quiet
 
     el.stageTitle.textContent = game.title;
     el.stageSub.textContent = [game.author, game.players].filter(Boolean).join(" · ");
@@ -487,13 +489,31 @@
   /* ------------------------------------------------------------------ *
    * Theme
    * ------------------------------------------------------------------ */
+  // Storage can throw outright (Safari private mode, blocked cookies, file:// sandboxes),
+  // so every access is guarded — a theme preference must never stop the arcade booting.
+  function readStore(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeStore(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (_) {
+      /* not persisted, not a problem */
+    }
+  }
+
   function wireTheme() {
-    const stored = localStorage.getItem("ruffle-arcade-theme");
+    const stored = readStore("ruffle-arcade-theme");
     if (stored) document.documentElement.dataset.theme = stored;
     el.themeToggle.addEventListener("click", () => {
       const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       document.documentElement.dataset.theme = next;
-      localStorage.setItem("ruffle-arcade-theme", next);
+      writeStore("ruffle-arcade-theme", next);
     });
   }
 
@@ -501,16 +521,6 @@
    * Boot
    * ------------------------------------------------------------------ */
   async function boot() {
-    if (window.__OFFLINE_TRUNCATED__) {
-      document.body.insertAdjacentHTML(
-        "afterbegin",
-        '<p class="error" style="margin:16px;padding:14px;border-radius:12px">' +
-          "This offline file looks incomplete — it was probably still being saved or copied. " +
-          "Copy it again, or use the hosted version instead.</p>"
-      );
-      return;
-    }
-
     // Single-file build: say so, and point people at the download on the hosted site.
     if (window.__ARCADE_OFFLINE__ && el.offlineNote) el.offlineNote.hidden = false;
     if (window.__ARCADE_OFFLINE__ && el.downloadLink) {
@@ -534,13 +544,9 @@
       })
     );
 
-    try {
-      // Same folder as index.html: works at / and at /repo-name/ on GitHub Pages.
-      state.games = await window.Catalog.load("");
-    } catch (error) {
-      el.grid.innerHTML = `<p class="error">Could not load the game list: ${escapeHtml(error.message)}</p>`;
-      return;
-    }
+    // Same folder as index.html: works at / and at /repo-name/ on GitHub Pages.
+    // If the list itself is unreachable, boot.js shows the recovery panel.
+    state.games = await window.Catalog.load("");
     renderTagFilters();
     renderGrid();
 
@@ -560,6 +566,27 @@
     window.addEventListener("popstate", route);
     route();
 
+    // The UI is usable now: let boot.js drop the splash immediately.
+    try {
+      if (window.ArcadeBoot && window.ArcadeBoot.panel) window.ArcadeBoot.panel.hide();
+      window.__ARCADE_READY__ = true;
+      document.documentElement.dataset.arcadeReady = "true";
+    } catch (_) {
+      /* boot.js may be absent when the scripts are loaded directly */
+    }
+
+    // Surface a friendly, actionable message if Ruffle cannot start at all.
+    window.RuffleBridge.loadRuffle().catch((error) => {
+      if (!state.games || !state.games.length) return;
+      el.grid.insertAdjacentHTML(
+        "beforebegin",
+        '<p class="error" role="alert" style="margin:0 0 18px">' +
+          "The Flash player could not be loaded (" + escapeHtml(error.message) + "). " +
+          "Games will not start until it is available — if you opened this from disk, " +
+          'use the <a href="offline.html">offline copy</a> instead.</p>'
+      );
+    }).catch(() => {});
+
     // Warm Ruffle up in the background so the first click feels instant.
     if ("requestIdleCallback" in window) {
       requestIdleCallback(() => window.RuffleBridge.loadRuffle().catch(() => {}), { timeout: 4000 });
@@ -568,5 +595,13 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", boot);
+  // boot.js drives startup (it handles fallbacks + the splash). Because the script may be
+  // injected after DOMContentLoaded has already fired, expose start() instead of relying on
+  // the event alone, and let the event path cover the plain "script tag in the page" case.
+  window.ArcadeApp = { start: boot };
+
+  if (!window.ArcadeBoot) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
+  }
 })();

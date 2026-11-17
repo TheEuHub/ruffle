@@ -1,7 +1,7 @@
 {
-  "builtAt": "2026-11-17T13:08:27.820Z",
-  "bytes": 44694858,
-  "sha256": "0177bce37ac36e80",
+  "builtAt": "2026-11-17T13:37:53.723Z",
+  "bytes": 44725875,
+  "sha256": "16a6ec8ab4530e97",
   "games": [
     "pacman",
     "fruit-madness",

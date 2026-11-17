@@ -47,6 +47,7 @@
     const embedded = window.__OFFLINE_CATALOG__;
     let data;
     if (embedded) {
+      // Single-file build, or a page that healed itself from offline.html.
       data = embedded;
     } else {
       const response = await fetch(`${basePath || ""}games.json`, { cache: "no-cache" });

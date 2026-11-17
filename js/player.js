@@ -10,51 +10,159 @@
 
 const RUFFLE_BASE = "assets/ruffle/";
 
-/** Load ruffle.js exactly once and resolve when window.RufflePlayer is ready. */
+/**
+ * Where Ruffle can come from, in order:
+ *   1. assets/ruffle/ next to this page (normal case, works offline on a server)
+ *   2. the payload extracted from offline.html (the self-healing path)
+ *   3. Ruffle's official CDN (last resort: assets/ missing but there is a network)
+ * The offline single-file build always answers with (2) because the payload is in the page.
+ */
+const DEFAULT_SOURCES = [
+  { kind: "local", base: "assets/ruffle/" },
+  { kind: "payload", base: "assets/ruffle/", requiresPayload: true },
+  // Last resort: a real network, using Ruffle's own published builds.
+  { kind: "cdn", base: "https://unpkg.com/@ruffle-rs/ruffle@0.7.1/" },
+  { kind: "cdn", base: "https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle@0.7.1/" },
+];
+
+function ruffleSources() {
+  const configured = window.RUFFLE_SOURCES;
+  if (Array.isArray(configured) && configured.length) return configured;
+  return DEFAULT_SOURCES;
+}
+
 let ruffleReady = null;
+
+function waitForRufflePlayer(timeoutMs = 6000) {
+  const deadline = Date.now() + timeoutMs;
+  return new Promise((resolve, reject) => {
+    const tick = () => {
+      const player = window.RufflePlayer;
+      if (player && typeof player.newest === "function") {
+        const source = player.newest();
+        if (source) return resolve(source);
+      }
+      if (Date.now() > deadline) return reject(new Error("Ruffle did not register a player"));
+      setTimeout(tick, 60);
+    };
+    tick();
+  });
+}
+
+/** Inject ruffle.js from a URL. Rejects on network errors or if it never registers. */
+function loadRuffleScript(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = url;
+    script.async = true;
+    let settled = false;
+    const done = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (error) {
+        script.remove();
+        reject(error);
+      } else {
+        resolve();
+      }
+    };
+    // A blocked or hanging request must not stall the whole player forever.
+    const timer = setTimeout(() => done(new Error("timed out loading " + url)), 12000);
+    script.onload = () => done();
+    script.onerror = () => done(new Error("could not load " + url));
+    document.head.appendChild(script);
+  });
+}
+
+/** Run Ruffle straight out of the embedded/sidecar payload (no network at all). */
+function loadRuffleFromPayload() {
+  const assets = window.__OFFLINE_ASSETS__;
+  if (!assets || !assets.has("ruffle.js")) throw new Error("no embedded Ruffle payload");
+  window.RufflePlayer = window.RufflePlayer || {};
+  window.RufflePlayer.config = ruffleConfig(window.RufflePlayer.config || {});
+  (0, eval)(assets.textOf("ruffle.js"));
+  ["core.simd.js", "core.vanilla.js"].forEach((name) => {
+    if (assets.has(name)) (0, eval)(assets.textOf(name));
+  });
+}
+
+function ruffleConfig(existing) {
+  return Object.assign(
+    {
+      publicPath: RUFFLE_BASE,
+      autoplay: "on",
+      unmuteOverlay: "visible",
+      letterbox: "on",
+      scale: "showAll",
+      quality: "high",
+      allowScriptAccess: false,
+      upgradeToHttps: false,
+      warnOnUnsupportedContent: false,
+      showSwfDownload: false,
+      // Only shows without GPU acceleration; the games still run, so keep the stage clean.
+      showHardwareAccelerationNotification: false,
+    },
+    existing
+  );
+}
+
+/**
+ * Load Ruffle exactly once, trying each source in turn. Resolves with the registered
+ * player source, or rejects with every failure collected so the UI can explain it.
+ */
 function loadRuffle() {
   if (ruffleReady) return ruffleReady;
 
-  ruffleReady = new Promise((resolve, reject) => {
-    // Sensible global defaults for a game site: no autoplay surprises, clickable links.
+  ruffleReady = (async () => {
     window.RufflePlayer = window.RufflePlayer || {};
-    window.RufflePlayer.config = Object.assign(
-      {
-        // Files live next to this page, so let Ruffle fetch relative paths.
-        publicPath: RUFFLE_BASE,
-        autoplay: "on",
-        unmuteOverlay: "visible",
-        letterbox: "on",
-        scale: "showAll",
-        quality: "high",
-        allowScriptAccess: false,
-        upgradeToHttps: false,
-        warnOnUnsupportedContent: false,
-        showSwfDownload: false,
-        // The banner only appears on machines without GPU acceleration; the games still run,
-        // so keep the stage clean instead of covering the top of the game.
-        showHardwareAccelerationNotification: false,
-      },
-      window.RufflePlayer.config || {}
-    );
+    window.RufflePlayer.config = ruffleConfig(window.RufflePlayer.config || {});
 
-    const script = document.createElement("script");
-    script.src = RUFFLE_BASE + "ruffle.js";
-    script.async = true;
-    script.onload = () => {
-      // ruffle.js registers itself on load; give the polyfill a tick to settle.
-      const waitFor = (tries = 0) => {
-        if (window.RufflePlayer && typeof window.RufflePlayer.newest === "function") {
-          const source = window.RufflePlayer.newest();
-          if (source) return resolve(source);
+    const failures = [];
+    for (const source of ruffleSources()) {
+      try {
+        if (source.kind === "cdn" && navigator.onLine === false) {
+          failures.push("cdn: browser is offline");
+          continue;
         }
-        if (tries > 100) return reject(new Error("Ruffle failed to register a player source."));
-        setTimeout(() => waitFor(tries + 1), 50);
-      };
-      waitFor();
-    };
-    script.onerror = () => reject(new Error("Could not load " + RUFFLE_BASE + "ruffle.js"));
-    document.head.appendChild(script);
+        if (source.kind === "payload") {
+          // A payload is only present when the page actually has one embedded.
+          if (!window.__OFFLINE_ASSETS__ || !window.__OFFLINE_ASSETS__.has("ruffle.js")) {
+            failures.push("embedded payload: not available");
+            continue;
+          }
+          loadRuffleFromPayload();
+        } else {
+          if (source.kind === "local" && window.__ARCADE_HEALED_PAYLOAD__) {
+            // The page already told us the local files are broken; skip straight on.
+            failures.push("local files: unavailable");
+            continue;
+          }
+          await loadRuffleScript(source.base + "ruffle.js");
+        }
+        const registered = await waitForRufflePlayer(source.kind === "cdn" ? 12000 : 6000);
+        if (source.kind !== "local") {
+          console.info("Ruffle Arcade: using the " + source.kind + " Ruffle source.");
+        }
+        return registered;
+      } catch (error) {
+        failures.push(source.kind + ": " + error.message);
+        console.warn("Ruffle Arcade: " + source.kind + " source failed — " + error.message);
+        // A half-registered player would block the next attempt; start clean.
+        try {
+          delete window.RufflePlayer.sources.local;
+        } catch (_) {
+          /* ignore */
+        }
+      }
+    }
+
+    throw new Error("Ruffle could not be loaded. " + failures.join(" | "));
+  })();
+
+  // Let the next call retry if every source failed.
+  ruffleReady.catch(() => {
+    ruffleReady = null;
   });
 
   return ruffleReady;

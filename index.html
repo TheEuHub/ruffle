@@ -8,8 +8,98 @@
   <meta name="theme-color" content="#0b0f16" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* Boot splash: inline so it renders even if css/style.css is missing or blocked. */
+    #splash {
+      position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+      padding: 24px; overscroll-behavior: contain;
+      background: #080b11; color: #e8eef7;
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #splash[hidden] { display: none; }
+    #splash .splash-card { width: 100%; max-width: 520px; text-align: center; }
+    #splash .splash-logo {
+      width: 56px; height: 56px; margin: 0 auto 18px; border-radius: 16px;
+      display: grid; place-items: center;
+      background: linear-gradient(145deg, #f04b4b, #ff7a45);
+      box-shadow: 0 14px 34px -14px rgba(240, 75, 75, .95);
+    }
+    #splash .splash-logo svg { width: 32px; height: 32px; fill: #fff; }
+    #splash h1 { margin: 0; font-size: 21px; letter-spacing: -.02em; }
+    #splash p { margin: 8px 0 0; color: #9fb0c6; font-size: 14px; }
+    #splash .bar {
+      height: 4px; margin: 22px auto 0; max-width: 260px; border-radius: 99px;
+      background: #1b2634; overflow: hidden;
+    }
+    #splash .bar > i {
+      display: block; height: 100%; width: 34%; border-radius: 99px;
+      background: linear-gradient(90deg, #f04b4b, #ff7a45);
+      animation: splash-slide 1.15s ease-in-out infinite;
+    }
+    @keyframes splash-slide {
+      0% { transform: translateX(-100%); } 100% { transform: translateX(320%); }
+    }
+    #splash .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+    #splash .actions a, #splash .actions button {
+      display: inline-flex; align-items: center; gap: 7px; height: 42px; padding: 0 18px;
+      border-radius: 11px; border: 1px solid #2e4055; background: #16202e; color: #e8eef7;
+      font: inherit; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer;
+    }
+    #splash .actions a.primary, #splash .actions button.primary {
+      border-color: transparent; color: #fff;
+      background: linear-gradient(145deg, #f04b4b, #ff7a45);
+    }
+    #splash .actions [hidden] { display: none; }
+    #splash .detail {
+      margin-top: 18px; padding: 12px 14px; border-radius: 10px; text-align: left;
+      background: #0d121b; border: 1px solid #223041; color: #9fb0c6;
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      max-height: 180px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    #splash .detail[hidden] { display: none; }
+    #splash .hint { margin-top: 14px; font-size: 12.5px; color: #6d8098; }
+    #splash code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #16202e; border: 1px solid #223041; border-radius: 5px; padding: .1em .35em;
+    }
+    @media (prefers-color-scheme: light) {
+      #splash { background: #f5f7fb; color: #16202e; }
+      #splash p, #splash .hint { color: #55657a; }
+      #splash .bar { background: #dde5f0; }
+      #splash code, #splash .actions a, #splash .actions button { background: #fff; border-color: #dde5f0; color: #16202e; }
+      #splash .actions a.primary, #splash .actions button.primary { color: #fff; border-color: transparent; }
+      #splash .detail { background: #fff; border-color: #dde5f0; color: #55657a; }
+    }
+  </style>
 </head>
 <body>
+  <!-- ================= BOOT SPLASH =================
+       Shown until the app is ready. If anything fails (missing files, no server,
+       offline, blocked WebAssembly) this turns into a recovery panel instead of
+       leaving a blank page. Styled inline so it survives a missing stylesheet. -->
+  <div id="splash" role="status" aria-live="polite">
+    <div class="splash-card">
+      <div class="splash-logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M6 26V6h12a7 7 0 0 1 1.6 13.8L26 26h-6.6l-5-5.6H12V26H6Zm6-11h6a2.5 2.5 0 0 0 0-5h-6v5Z"/></svg>
+      </div>
+      <h1 id="splash-title">Starting Ruffle Arcade…</h1>
+      <p id="splash-message">Warming up the Flash player.</p>
+      <div class="bar" id="splash-bar"><i></i></div>
+
+      <div class="actions" id="splash-actions" hidden>
+        <a class="primary" id="splash-offline" href="offline.html">Open the offline copy</a>
+        <button type="button" id="splash-retry">Try again</button>
+        <button type="button" id="splash-details-toggle">Details</button>
+      </div>
+
+      <pre class="detail" id="splash-detail" hidden></pre>
+      <p class="hint" id="splash-hint" hidden>
+        Opening a file directly only works with the self-contained build. For the full site run
+        <code>npm start</code> (or <code>python3 -m http.server</code>) in this folder.
+      </p>
+    </div>
+  </div>
+
   <div class="bg-glow" aria-hidden="true"></div>
 
   <header class="site-header">
@@ -182,8 +272,178 @@
     </div>
   </div>
 
-  <script src="js/catalog.js"></script>
-  <script src="js/player.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/boot.js"></script>
+  <script>
+    /*
+     * Independent safety net — inline on purpose so it works even when js/ is missing.
+     *
+     * If js/boot.js never arrives (folder copied without js/, a deploy that dropped the
+     * folder, a server refusing .js) this still recovers by pulling the app out of the
+     * self-contained offline.html sitting next to this page. If that is impossible too,
+     * it explains the situation instead of leaving a blank screen.
+     */
+    (function () {
+      var DEADLINE = 9000;
+      var ready = function () { return window.__ARCADE_READY__ === true; };
+
+      function el(id) { return document.getElementById(id); }
+
+      function showPanel(title, message, detail) {
+        if (!el("splash-title")) return;
+        el("splash").hidden = false;
+        el("splash-title").textContent = title;
+        el("splash-message").textContent = message;
+        el("splash-bar").hidden = true;
+        el("splash-actions").hidden = false;
+        if (location.protocol === "file:") {
+          el("splash-offline").classList.add("primary");
+          el("splash-hint").hidden = false;
+        }
+        if (detail && el("splash-detail")) {
+          el("splash-detail").hidden = false;
+          el("splash-detail").textContent = detail;
+          el("splash-details-toggle").hidden = true;
+        }
+        window.__ARCADE_FAILED__ = true;
+        wireControls();
+      }
+
+      /* This guard can run with no other script available, so it wires its own buttons. */
+      var controlsWired = false;
+      function wireControls() {
+        if (controlsWired) return;
+        controlsWired = true;
+
+        var retry = el("splash-retry");
+        if (retry) {
+          retry.addEventListener("click", function () {
+            retry.disabled = true;
+            retry.textContent = "Reloading…";
+            location.reload();
+          });
+        }
+
+        var toggle = el("splash-details-toggle");
+        var detail = el("splash-detail");
+        if (toggle && detail) {
+          toggle.addEventListener("click", function () {
+            if (!detail.textContent) {
+              detail.textContent =
+                "Page: " + location.href +
+                "\nProtocol: " + location.protocol +
+                "\nThis page could not load js/boot.js" +
+                (window.__ARCADE_HEALED__ ? "\nRecovered from offline.html" : "");
+            }
+            detail.hidden = !detail.hidden;
+          });
+        }
+      }
+
+      /* Move the scripts + Ruffle payload out of offline.html and run them. */
+      function recover() {
+        if (location.protocol === "file:") {
+          return Promise.reject(new Error("file:// pages cannot read neighbour files"));
+        }
+        return fetch("offline.html", { cache: "no-store" })
+          .then(function (response) {
+            if (!response.ok) throw new Error("offline.html returned HTTP " + response.status);
+            return response.text();
+          })
+          .then(function (text) {
+            var page = new DOMParser().parseFromString(text, "text/html");
+            var inline = {};
+            page.querySelectorAll("script[data-inline]").forEach(function (node) {
+              inline[node.dataset.inline] = node.textContent;
+            });
+            if (!inline["boot.js"] && !inline["app.js"]) {
+              throw new Error("offline.html has no app scripts");
+            }
+
+            // The copy also carries the game list and the cover art, so the page can work
+            // even when games.json / assets are gone.
+            var plain = page.querySelectorAll("script:not([data-inline]):not([data-asset])");
+            plain.forEach(function (node) {
+              var code = node.textContent || "";
+              if (code.indexOf("__OFFLINE_CATALOG__") !== -1 || code.indexOf("__OFFLINE_COVERS__") !== -1) {
+                try { (0, eval)(code); } catch (e) { console.warn("recovered data script failed", e); }
+              }
+            });
+            // Scripts recovered from the copy are inline-capable: mark them so catalog.js
+            // uses the embedded game list instead of a network fetch.
+            window.__ARCADE_HEALED__ = true;
+
+            // Register the embedded Ruffle + game payload for the fetch() shim.
+            var payload = page.querySelectorAll("script[data-asset]");
+            if (payload.length) {
+              var host = document.createElement("div");
+              host.id = "arcade-offline-payload";
+              host.hidden = true;
+              payload.forEach(function (node) {
+                var clone = document.createElement("script");
+                clone.type = "text/plain";
+                clone.dataset.asset = node.dataset.asset;
+                if (node.dataset.encoding) clone.dataset.encoding = node.dataset.encoding;
+                clone.textContent = node.textContent;
+                host.appendChild(clone);
+              });
+              document.body.appendChild(host);
+              window.__ARCADE_HEALED_PAYLOAD__ = true;
+            }
+
+            // Run the app scripts first, then boot.js: it sees ArcadeApp already
+            // registered and starts the app instead of loading anything from disk.
+            var run = [
+              ["catalog.js", inline["catalog.js"]],
+              ["player.js", inline["player.js"]],
+              ["offline-boot.js", inline["offline-boot.js"]],
+              ["app.js", inline["app.js"]],
+              ["boot.js", inline["boot.js"]],
+            ];
+
+            run.forEach(function (pair) {
+              if (!pair[1]) return;
+              // eslint-disable-next-line no-eval
+              (0, eval)(pair[1]);
+            });
+            window.__ARCADE_HEALED__ = true;
+
+            if (window.ArcadeBoot) return; // boot.js takes over from here
+            if (!window.ArcadeApp) throw new Error("no app code inside offline.html");
+
+            // No boot.js in the copy: finish the job right here.
+            window.ArcadeApp.start().then(function () {
+              window.__ARCADE_READY__ = true;
+              el("splash").hidden = true;
+            });
+          });
+      }
+
+      function fail(error) {
+        var isFile = location.protocol === "file:";
+        showPanel(
+          isFile ? "Open the offline copy instead" : "The arcade could not load its files",
+          isFile
+            ? "Browsers do not let a page read the files next to it when you open it directly. offline.html has the player and all four games inside it — just open that file."
+            : "Neither js/boot.js nor offline.html could be reached. If you opened this folder from disk, run `npm start` in it; otherwise re-deploy the site.",
+          error ? String(error.message || error) : null
+        );
+      }
+
+      setTimeout(function () {
+        if (ready() || window.__ARCADE_FAILED__) return;
+        if (window.__ARCADE_STAGE_OPEN__) return;
+        if (window.ArcadeBoot) return; // boot.js is in charge and will report properly
+        el("splash-message").textContent = "boot.js was unavailable — rebuilding the page from offline.html…";
+        recover().catch(fail);
+      }, 2500);
+
+      setTimeout(function () {
+        if (ready() || window.__ARCADE_FAILED__) return;
+        if (window.__ARCADE_STAGE_OPEN__) return; // a game is booting; let it finish
+        if (window.ArcadeBoot && window.ArcadeBoot.failed) return;
+        fail(new Error("startup timed out"));
+      }, DEADLINE);
+    })();
+  </script>
 </body>
 </html>
