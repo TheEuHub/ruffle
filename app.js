@@ -6,7 +6,8 @@ const libraryPanel = document.getElementById("library-panel");
 const ownPanel = document.getElementById("own-panel");
 const tabList = document.querySelector('[role="tablist"]');
 const gameGrid = document.getElementById("game-grid");
-const gameCount = document.getElementById("game-count");
+const heroGameCount = document.getElementById("hero-game-count");
+const collectionSummary = document.getElementById("collection-summary");
 const libraryMessage = document.getElementById("library-message");
 const libraryMessageTitle = document.getElementById("library-message-title");
 const libraryMessageText = document.getElementById("library-message-text");
@@ -47,8 +48,9 @@ function clearLibraryMessage() {
 }
 
 function setGameCount(count) {
-  gameCount.textContent = String(count).padStart(2, "0");
-  gameCount.setAttribute("aria-label", `${count} ${count === 1 ? "game" : "games"}`);
+  const entriesLabel = count === 1 ? "entry" : "entries";
+  heroGameCount.textContent = String(count);
+  collectionSummary.textContent = entriesLabel;
 }
 
 function isSafeRelativePath(value, extension) {
@@ -104,15 +106,17 @@ function makeGameCard(game, index) {
 
   const art = document.createElement("div");
   art.className = "game-art";
-  art.dataset.tone = String(index % 4);
   art.setAttribute("aria-hidden", "true");
 
   const fallback = document.createElement("div");
   fallback.className = "art-fallback";
   fallback.innerHTML = `
-    <span class="art-topline">FLASH LIBRARY</span>
-    <span class="art-mark">${String(index + 1).padStart(2, "0")}</span>
-    <span class="art-bottomline"><span>YOUR GAME</span><span class="art-index">/ ${String(index + 1).padStart(2, "0")}</span></span>
+    <svg class="cover-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 3.75h7l4 4v12.5h-11V3.75Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M13.5 3.75v4h4M9 12h6M9 15h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="cover-label">No thumbnail</span>
+    <span class="cover-number">Game ${index + 1}</span>
   `;
   art.append(fallback);
 
@@ -126,11 +130,6 @@ function makeGameCard(game, index) {
     art.append(image);
   }
 
-  const badge = document.createElement("span");
-  badge.className = "game-badge";
-  badge.textContent = "SWF";
-  art.append(badge);
-
   const details = document.createElement("div");
   details.className = "game-details";
 
@@ -139,7 +138,7 @@ function makeGameCard(game, index) {
 
   const number = document.createElement("p");
   number.className = "game-index";
-  number.textContent = `GAME ${String(index + 1).padStart(2, "0")}`;
+  number.textContent = `Game ${index + 1} · SWF`;
 
   const title = document.createElement("h3");
   title.className = "game-title";
@@ -148,7 +147,7 @@ function makeGameCard(game, index) {
 
   const play = document.createElement("span");
   play.className = "play-label";
-  play.innerHTML = `Play <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m4.25 2.25 4 3.75-4 3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  play.textContent = "Play";
 
   details.append(text, play);
   button.append(art, details);
@@ -300,7 +299,7 @@ async function verifyGameFile(url, relativePath) {
   }
 
   if (response.status === 404) {
-    throw new MissingGameError(`We couldn't find “${relativePath}”. This card is a placeholder until you add the SWF. Put the file in /games/ or correct its path in games.json.`);
+    throw new MissingGameError(`We couldn't find “${relativePath}”. This card is a placeholder until you add the SWF. Put the file in the games/ folder or correct its path in games.json.`);
   }
   if (!response.ok) {
     throw new Error(`The game file couldn't be checked (HTTP ${response.status}). Check the path in games.json and try again.`);

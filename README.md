@@ -71,3 +71,7 @@ Then open <http://localhost:8000/>. Use an HTTP server rather than opening `inde
 4. Choose **main** and **/ (root)**, then save.
 
 All site assets and game paths are relative, so the page also works at a project URL such as `username.github.io/repo-name/`.
+
+## Design credit
+
+The visual review was guided by [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
