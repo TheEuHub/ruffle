@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e13">
+  <meta name="description" content="A local-first Flash game library powered by the Ruffle emulator.">
+  <title>Rewind Arcade — Flash games, brought back</title>
+  <link rel="stylesheet" href="./style.css">
+  <script>
+    window.RufflePlayer = window.RufflePlayer || {};
+    window.RufflePlayer.config = {
+      autoplay: "on",
+      unmuteOverlay: "visible"
+    };
+  </script>
+  <script src="./ruffle/ruffle.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Rewind Arcade home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M14.25 7.5 5.5 16l8.75 8.5v-5.25c7.3-.15 11.16 2.02 13.25 5.25-.7-8.22-4.98-12.42-13.25-12.75V7.5Z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-name">rewind<span>arcade</span></span>
+      </a>
+      <div class="header-note">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Local by design</span>
+        <span class="header-divider" aria-hidden="true"></span>
+        <span>Powered by Ruffle</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> A HOME FOR FLASH CLASSICS</p>
+          <h1 id="page-title">Old favorites.<br><span>New life.</span></h1>
+          <p class="hero-description">Bring your SWF games back to the screen. Pick a game from your library, or load a file from your device.</p>
+        </div>
+        <aside class="privacy-card" aria-label="Privacy note">
+          <span class="privacy-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 3 19 6v5.3c0 4.45-2.96 7.72-7 9.7-4.04-1.98-7-5.25-7-9.7V6l7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div>
+            <strong>Your files stay yours</strong>
+            <p>Games run in your browser. This site never uploads your files.</p>
+          </div>
+        </aside>
+      </section>
+
+      <div class="workspace">
+        <div class="tab-list" role="tablist" aria-label="Choose a game source">
+          <button class="tab-button" id="library-tab" type="button" role="tab" aria-selected="true" aria-controls="library-panel" tabindex="0">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M3.25 4.25h5.5v5.5h-5.5zM11.25 4.25h5.5v5.5h-5.5zM3.25 12.25h5.5v3.5h-5.5zM11.25 12.25h5.5v3.5h-5.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span>Library</span>
+            <span class="tab-count" id="game-count">—</span>
+          </button>
+          <button class="tab-button" id="own-tab" type="button" role="tab" aria-selected="false" aria-controls="own-panel" tabindex="-1">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 13.75V3.5m0 0L6.25 7.25M10 3.5l3.75 3.75M4.25 12.25v3.5h11.5v-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Load Your Own</span>
+          </button>
+        </div>
+
+        <section class="tab-panel" id="library-panel" role="tabpanel" aria-labelledby="library-tab" tabindex="0">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">YOUR COLLECTION</p>
+              <h2>Pick up where you left off</h2>
+              <p class="section-description">Choose a title to launch it in the player.</p>
+            </div>
+            <span class="collection-tag"><span aria-hidden="true">✦</span> THE CLASSICS</span>
+          </div>
+
+          <div class="game-grid" id="game-grid" aria-label="Games in your library"></div>
+
+          <div class="message-panel" id="library-message" role="status" aria-live="polite" hidden>
+            <span class="message-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5Z" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M12 10.5v5M12 7.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div class="message-copy">
+              <h3 id="library-message-title"></h3>
+              <p id="library-message-text"></p>
+            </div>
+            <button class="text-button" id="retry-library" type="button" hidden>Try again</button>
+          </div>
+
+          <p class="library-footnote"><span class="footnote-mark" aria-hidden="true">↳</span> Add games you own or that are freely licensed. See <code>README.md</code> for the quick setup.</p>
+        </section>
+
+        <section class="tab-panel own-panel" id="own-panel" role="tabpanel" aria-labelledby="own-tab" tabindex="0" hidden>
+          <div class="section-heading own-heading">
+            <div>
+              <p class="eyebrow">PLAY FROM THIS DEVICE</p>
+              <h2>Bring your own SWF</h2>
+              <p class="section-description">Choose a Flash file from your computer. It stays right here.</p>
+            </div>
+            <span class="local-pill"><span class="status-dot" aria-hidden="true"></span> No upload</span>
+          </div>
+
+          <div class="drop-zone" id="drop-zone" role="region" aria-label="Drop a local SWF file here" aria-describedby="drop-help">
+            <div class="drop-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <path d="M24 31V10m0 0-8 8m8-8 8 8M11 27v10h26V27" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 5h32v38H8z" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 4" opacity=".45"/>
+              </svg>
+            </div>
+            <h3>Drop a .swf file here</h3>
+            <p id="drop-help">or choose one from your device</p>
+            <button class="primary-button choose-button" id="choose-file" type="button">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 13.5V3.75m0 0L6.5 7.25M10 3.75l3.5 3.5M4.25 12v4h11.5v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Choose SWF file
+            </button>
+            <input id="file-input" type="file" accept=".swf,application/x-shockwave-flash" hidden>
+            <p class="own-status" id="own-status" role="status" aria-live="polite" hidden></p>
+            <p class="privacy-caption"><span aria-hidden="true">◈</span> Read locally with FileReader. This site never uploads it.</p>
+          </div>
+
+          <div class="own-tip">
+            <span class="tip-number">01</span>
+            <p><strong>Only load files you trust.</strong> Flash files may contain active content. Ruffle runs them in an emulated player, but you should still use SWFs from a source you trust.</p>
+          </div>
+        </section>
+
+        <section class="player-view" id="player-view" aria-labelledby="player-title" hidden>
+          <div class="player-toolbar">
+            <button class="back-button" id="back-to-library" type="button">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M12.5 4.5 7 10l5.5 5.5M7.25 10h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Back to library
+            </button>
+            <div class="now-playing">
+              <p class="eyebrow">NOW PLAYING</p>
+              <h2 id="player-title">Game</h2>
+            </div>
+            <button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Enter fullscreen" disabled>
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M7.25 3.75H4.5v2.75m8.25-2.75h2.75v2.75M7.25 16.25H4.5V13.5m8.25 2.75h2.75V13.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Fullscreen</span>
+            </button>
+          </div>
+          <p class="player-status" id="player-status" role="status" aria-live="polite" hidden></p>
+          <div class="player-frame" id="player-frame">
+            <div class="player-slot" id="player-slot"></div>
+            <div class="player-placeholder" id="player-placeholder" aria-hidden="true">
+              <span class="placeholder-orbit"><span></span></span>
+              <strong id="placeholder-title">Getting your game ready</strong>
+              <span id="placeholder-copy">Your Flash game will appear here.</span>
+            </div>
+          </div>
+          <p class="player-caption">Tip: click inside the game to interact. Use the browser's fullscreen controls for the best view.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <span>Made for the games worth remembering.</span>
+      <span>Flash emulation, powered by Ruffle.</span>
+    </footer>
+  </div>
+</body>
+</html>

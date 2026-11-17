@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Example Game One",
+    "file": "games/example-one.swf",
+    "thumb": "games/example-one.png"
+  },
+  {
+    "title": "Example Game Two",
+    "file": "games/example-two.swf",
+    "thumb": "games/example-two.png"
+  },
+  {
+    "title": "Example Game Three",
+    "file": "games/example-three.swf",
+    "thumb": "games/example-three.png"
+  },
+  {
+    "title": "Example Game Four",
+    "file": "games/example-four.swf",
+    "thumb": "games/example-four.png"
+  }
+]
