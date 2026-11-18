@@ -2,31 +2,36 @@
 
 const libraryTab = document.getElementById("library-tab");
 const ownTab = document.getElementById("own-tab");
+const tabList = document.getElementById("tab-list");
 const libraryPanel = document.getElementById("library-panel");
 const ownPanel = document.getElementById("own-panel");
-const tabList = document.querySelector('[role="tablist"]');
+const sampleSwfsContainer = document.getElementById("sample-swfs-container");
+const gameSelect = document.getElementById("game-select");
 const gameGrid = document.getElementById("game-grid");
 const collectionCount = document.getElementById("collection-count");
 const libraryMessage = document.getElementById("library-message");
 const libraryMessageTitle = document.getElementById("library-message-title");
 const libraryMessageText = document.getElementById("library-message-text");
 const retryLibraryButton = document.getElementById("retry-library");
-const dropZone = document.getElementById("drop-zone");
 const chooseFileButton = document.getElementById("choose-file");
 const fileInput = document.getElementById("file-input");
+const localFileName = document.getElementById("local-file-name");
 const ownStatus = document.getElementById("own-status");
-const playerView = document.getElementById("player-view");
+const mainContent = document.getElementById("main");
 const playerTitle = document.getElementById("player-title");
 const playerStatus = document.getElementById("player-status");
 const playerSlot = document.getElementById("player-slot");
 const playerPlaceholder = document.getElementById("player-placeholder");
 const placeholderTitle = document.getElementById("placeholder-title");
 const placeholderCopy = document.getElementById("placeholder-copy");
+const dropOverlay = document.getElementById("overlay");
+const playerControls = document.getElementById("player-controls");
 const backToLibraryButton = document.getElementById("back-to-library");
 const fullscreenButton = document.getElementById("fullscreen-button");
 const fullscreenLabel = fullscreenButton.querySelector("span");
 
 let currentPlayer = null;
+let libraryGames = [];
 
 class ManifestError extends Error {}
 class MissingGameError extends Error {}
@@ -47,8 +52,8 @@ function clearLibraryMessage() {
 }
 
 function setGameCount(count) {
-  const entriesLabel = count === 1 ? "entry" : "entries";
-  collectionCount.textContent = `${count} ${entriesLabel}`;
+  collectionCount.textContent = String(count);
+  collectionCount.setAttribute("aria-label", `${count} ${count === 1 ? "game" : "games"}`);
 }
 
 function isSafeRelativePath(value, extension) {
@@ -95,12 +100,13 @@ function resolveSitePath(path) {
 function makeGameCard(game, index) {
   const card = document.createElement("article");
   card.className = "game-card";
+  card.setAttribute("role", "listitem");
 
   const button = document.createElement("button");
   button.className = "game-card-button";
   button.type = "button";
   button.setAttribute("aria-label", `Play ${game.title}`);
-  button.addEventListener("click", () => playLibraryGame(game));
+  button.addEventListener("click", () => playLibraryGame(game, index));
 
   const art = document.createElement("div");
   art.className = "game-art";
@@ -114,7 +120,7 @@ function makeGameCard(game, index) {
       <path d="M13.5 3.75v4h4M9 12h6M9 15h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="cover-label">No thumbnail</span>
-    <span class="cover-number">Game ${index + 1}</span>
+    <span class="cover-number">${index + 1}</span>
   `;
   art.append(fallback);
 
@@ -138,7 +144,7 @@ function makeGameCard(game, index) {
   number.className = "game-index";
   number.textContent = `Game ${index + 1} · SWF`;
 
-  const title = document.createElement("h3");
+  const title = document.createElement("h2");
   title.className = "game-title";
   title.textContent = game.title;
   text.append(number, title);
@@ -153,10 +159,21 @@ function makeGameCard(game, index) {
   return card;
 }
 
+function makeSelectOption(value, label, disabled = false) {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  option.disabled = disabled;
+  return option;
+}
+
 async function loadGames() {
   gameGrid.replaceChildren();
   clearLibraryMessage();
   setGameCount(0);
+  libraryGames = [];
+  gameSelect.replaceChildren(makeSelectOption("", "Loading games…", true));
+  gameSelect.disabled = true;
 
   try {
     const response = await fetch("./games.json", { cache: "no-store" });
@@ -172,9 +189,11 @@ async function loadGames() {
     }
 
     const games = validateGamesManifest(data);
+    libraryGames = games;
     setGameCount(games.length);
 
     if (games.length === 0) {
+      gameSelect.replaceChildren(makeSelectOption("", "No games in library", true));
       setLibraryMessage(
         "Your library is empty",
         "Add a game entry to games.json and put its .swf file in the games folder."
@@ -182,13 +201,21 @@ async function loadGames() {
       return;
     }
 
-    const cards = games.map(makeGameCard);
-    gameGrid.replaceChildren(...cards);
+    const placeholder = makeSelectOption("", "Select a game…");
+    placeholder.selected = true;
+    gameSelect.replaceChildren(placeholder);
+    games.forEach((game, index) => {
+      gameSelect.append(makeSelectOption(String(index), game.title));
+    });
+    gameSelect.disabled = false;
+    gameGrid.replaceChildren(...games.map(makeGameCard));
   } catch (error) {
     setGameCount(0);
     const message = error instanceof ManifestError
       ? error.message
       : "We couldn't read games.json. Run this site from a local web server, then check the file and try again.";
+    gameSelect.replaceChildren(makeSelectOption("", "Library unavailable", true));
+    gameSelect.disabled = true;
     setLibraryMessage("We couldn't load your library", message, { retry: true, kind: "error" });
   }
 }
@@ -214,18 +241,23 @@ function setPlaceholder(title, message) {
 function showPlayerView(title) {
   discardPlayer();
   playerTitle.textContent = title;
-  libraryPanel.hidden = true;
+  tabList.hidden = true;
+  sampleSwfsContainer.hidden = true;
   ownPanel.hidden = true;
-  playerView.hidden = false;
+  libraryPanel.hidden = true;
+  mainContent.classList.remove("info-container-shown");
+  playerControls.hidden = false;
   setPlaceholder("Getting your game ready", "Your Flash game will appear here.");
   setPlayerStatus("Preparing the player…");
-  fullscreenButton.disabled = true;
+  backToLibraryButton.focus();
 }
 
 function closePlayerView() {
   discardPlayer();
-  playerView.hidden = true;
+  playerControls.hidden = true;
+  playerPlaceholder.hidden = true;
   setPlayerStatus("");
+  gameSelect.value = "";
 }
 
 function discardPlayer() {
@@ -297,7 +329,7 @@ async function verifyGameFile(url, relativePath) {
   }
 
   if (response.status === 404) {
-    throw new MissingGameError(`We couldn't find “${relativePath}”. This card is a placeholder until you add the SWF. Put the file in the games/ folder or correct its path in games.json.`);
+    throw new MissingGameError(`We couldn't find “${relativePath}”. This entry is a placeholder until you add the SWF. Put the file in the games/ folder or correct its path in games.json.`);
   }
   if (!response.ok) {
     throw new Error(`The game file couldn't be checked (HTTP ${response.status}). Check the path in games.json and try again.`);
@@ -321,7 +353,12 @@ function showGameError(error) {
   setPlayerStatus(error && error.message ? error.message : "Try another .swf file.", "error");
 }
 
-async function playLibraryGame(game) {
+async function playLibraryGame(game, index) {
+  const gameIndex = Number.isInteger(index)
+    ? index
+    : libraryGames.findIndex((entry) => entry.file === game.file);
+  if (gameIndex >= 0) gameSelect.value = String(gameIndex);
+
   showPlayerView(game.title);
   setPlayerStatus(`Checking for ${game.file}…`);
 
@@ -334,7 +371,7 @@ async function playLibraryGame(game) {
     setPlayerStatus(`Loading ${game.title}…`);
     await getPlayerApi(player).load(gameUrl);
     playerPlaceholder.hidden = true;
-    setPlayerStatus("Game loaded. Click inside the player to interact.", "success");
+    setPlayerStatus("");
   } catch (error) {
     showGameError(error);
   }
@@ -366,6 +403,7 @@ async function playLocalFile(file) {
     return;
   }
 
+  localFileName.textContent = file.name;
   setOwnStatus("");
   showPlayerView(file.name);
   setPlayerStatus("Reading this file locally with FileReader…");
@@ -380,23 +418,27 @@ async function playLocalFile(file) {
       swfFileName: file.name
     });
     playerPlaceholder.hidden = true;
-    setPlayerStatus("Game loaded. This file was read locally and was not uploaded.", "success");
+    setPlayerStatus("");
   } catch (error) {
     showGameError(error);
   }
 }
 
 function activateTab(name, moveFocus = false) {
-  if (!playerView.hidden) closePlayerView();
+  if (!playerControls.hidden) closePlayerView();
 
   const isLibrary = name === "library";
-
   libraryTab.setAttribute("aria-selected", String(isLibrary));
   libraryTab.tabIndex = isLibrary ? 0 : -1;
   ownTab.setAttribute("aria-selected", String(!isLibrary));
   ownTab.tabIndex = isLibrary ? -1 : 0;
-  libraryPanel.hidden = !isLibrary;
+
+  tabList.hidden = false;
+  sampleSwfsContainer.hidden = !isLibrary;
   ownPanel.hidden = isLibrary;
+  libraryPanel.hidden = !isLibrary;
+  playerControls.hidden = true;
+  mainContent.classList.toggle("info-container-shown", isLibrary);
 
   if (moveFocus) (isLibrary ? libraryTab : ownTab).focus();
 }
@@ -422,6 +464,14 @@ tabList.addEventListener("keydown", (event) => {
 retryLibraryButton.addEventListener("click", loadGames);
 backToLibraryButton.addEventListener("click", () => activateTab("library", true));
 
+gameSelect.addEventListener("change", () => {
+  if (gameSelect.value === "") return;
+  const index = Number(gameSelect.value);
+  if (Number.isInteger(index) && libraryGames[index]) {
+    playLibraryGame(libraryGames[index], index);
+  }
+});
+
 chooseFileButton.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => {
   const selectedFiles = Array.from(fileInput.files || []);
@@ -433,32 +483,39 @@ fileInput.addEventListener("change", () => {
   if (selectedFiles[0]) playLocalFile(selectedFiles[0]);
 });
 
+function containsFiles(event) {
+  return Boolean(event.dataTransfer && Array.from(event.dataTransfer.types || []).includes("Files"));
+}
+
 ["dragenter", "dragover"].forEach((eventName) => {
-  dropZone.addEventListener(eventName, (event) => {
+  mainContent.addEventListener(eventName, (event) => {
+    if (!containsFiles(event)) return;
     event.preventDefault();
     event.stopPropagation();
-    dropZone.classList.add("is-dragging");
+    dropOverlay.classList.add("drag");
     if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
   });
 });
 
-["dragleave", "dragend"].forEach((eventName) => {
-  dropZone.addEventListener(eventName, (event) => {
-    if (eventName === "dragleave" && dropZone.contains(event.relatedTarget)) return;
-    dropZone.classList.remove("is-dragging");
-  });
+mainContent.addEventListener("dragleave", (event) => {
+  if (event.relatedTarget instanceof Node && mainContent.contains(event.relatedTarget)) return;
+  dropOverlay.classList.remove("drag");
 });
 
-dropZone.addEventListener("drop", (event) => {
+mainContent.addEventListener("dragend", () => dropOverlay.classList.remove("drag"));
+mainContent.addEventListener("drop", (event) => {
+  if (!event.dataTransfer || event.dataTransfer.files.length === 0) return;
   event.preventDefault();
   event.stopPropagation();
-  dropZone.classList.remove("is-dragging");
-  const droppedFiles = Array.from((event.dataTransfer && event.dataTransfer.files) || []);
+  dropOverlay.classList.remove("drag");
+
+  const droppedFiles = Array.from(event.dataTransfer.files);
+  activateTab("own");
   if (droppedFiles.length > 1) {
     setOwnStatus("Drop one .swf file at a time.", "error");
     return;
   }
-  if (droppedFiles[0]) playLocalFile(droppedFiles[0]);
+  playLocalFile(droppedFiles[0]);
 });
 
 fullscreenButton.addEventListener("click", () => {
@@ -468,9 +525,15 @@ fullscreenButton.addEventListener("click", () => {
     if (api.isFullscreen && typeof api.setFullscreen === "function") {
       api.setFullscreen(false);
     } else if (typeof api.requestFullscreen === "function") {
-      api.requestFullscreen();
+      const result = api.requestFullscreen();
+      if (result && typeof result.catch === "function") {
+        result.catch(() => setPlayerStatus("Fullscreen isn't available in this browser window.", "error"));
+      }
     } else if (typeof currentPlayer.requestFullscreen === "function") {
-      currentPlayer.requestFullscreen();
+      const result = currentPlayer.requestFullscreen();
+      if (result && typeof result.catch === "function") {
+        result.catch(() => setPlayerStatus("Fullscreen isn't available in this browser window.", "error"));
+      }
     }
   } catch {
     setPlayerStatus("Fullscreen isn't available in this browser window.", "error");

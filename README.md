@@ -1,6 +1,6 @@
 # Ruffle Player
 
-A static, browser-only Flash game library powered by [Ruffle](https://github.com/ruffle-rs/ruffle). It uses plain HTML, CSS, and JavaScript—no build step, framework, CDN, or backend. Locally selected SWF files are read with `FileReader`; this site does not upload them.
+A static, browser-only Flash game library powered by [Ruffle](https://github.com/ruffle-rs/ruffle). The UI follows the original Ruffle demo's blue navbar, controls, logo, typography, black player stage, and drag-and-drop overlay, with a small Library sidebar and accessible **Library** and **Load your own** tabs. It uses plain HTML, CSS, and JavaScript—no build step, framework, CDN, or backend. Locally selected SWF files are read with `FileReader`; this site does not upload them.
 
 The four entries in `games.json` are placeholders. No game files are included; add SWFs that you own or that are freely licensed.
 
@@ -17,6 +17,10 @@ The four entries in `games.json` are placeholders. No game files are included; a
 │   └── .gitkeep
 └── ruffle/
     ├── logo.svg
+    ├── fonts/
+    │   ├── S6uyw4BMUTPHjx4wXg.woff2
+    │   ├── S6uyw4BMUTPHjxAwXjeu.woff2
+    │   └── OFL.txt
     ├── ruffle.js
     ├── core.ruffle.16d61072ac7fdc4d5013.js
     ├── core.ruffle.994eeef0a471a88cd0e3.js
@@ -27,7 +31,7 @@ The four entries in `games.json` are placeholders. No game files are included; a
     └── VERSION.txt
 ```
 
-Keep all Ruffle JavaScript and WebAssembly files together in `ruffle/`; the runtime loads those files locally. The included self-hosted build is Ruffle 0.7.1. Its license files are included alongside it. The page uses the official [Ruffle demo logo](https://github.com/ruffle-rs/ruffle/blob/master/web/packages/demo/public/logo.svg) and the player's blue-and-orange palette.
+Keep all Ruffle JavaScript and WebAssembly files together in `ruffle/`; the runtime loads them locally. The included self-hosted build is Ruffle 0.7.1. Its license files are included alongside it. The official demo logo and Lato font files are also bundled locally, so the page has no runtime CDN dependency. See `ruffle/fonts/OFL.txt` for the font license.
 
 ## Add or remove a library game
 
@@ -44,9 +48,9 @@ Keep all Ruffle JavaScript and WebAssembly files together in `ruffle/`; the runt
    ```
 
    `thumb` is optional. Keep the file paths relative to this project and make sure the JSON commas and quotes are valid. You can replace the four example entries or add more entries to the array.
-4. Refresh the site. To remove a game, delete its entry from `games.json` (and optionally delete its files from `games/`).
+4. Refresh the site. Select a game from the Ruffle-style **Sample SWF** control or open it from the Library sidebar. To remove a game, delete its entry from `games.json` (and optionally delete its files from `games/`).
 
-The Library is generated from `games.json` at page load. If the manifest is invalid or a listed SWF is missing, the site displays a helpful message. The **Load Your Own** tab also accepts a local `.swf` through the file picker or drag and drop; that file remains on your device.
+The Library selector and sidebar are generated from `games.json` at page load. If the manifest is invalid or a listed SWF is missing, the site displays a helpful message. The **Load your own** tab accepts a local `.swf` through the file picker or by dropping it onto the player area. That file stays on your device.
 
 ## Ruffle self-hosted web build
 
@@ -73,6 +77,6 @@ Then open <http://localhost:8000/>. Use an HTTP server rather than opening `inde
 
 All site assets and game paths are relative, so the page also works at a project URL such as `username.github.io/repo-name/`.
 
-## Design credit
+## Design and asset credits
 
-The visual review was guided by [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The navbar, controls, typography, player stage, and drag overlay are adapted from the [Ruffle demo source](https://github.com/ruffle-rs/ruffle/tree/master/web/packages/demo/src). The logo is the [official Ruffle demo logo](https://github.com/ruffle-rs/ruffle/blob/master/web/packages/demo/public/logo.svg). Lato is distributed under the SIL Open Font License included at `ruffle/fonts/OFL.txt`.
